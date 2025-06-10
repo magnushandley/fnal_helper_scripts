@@ -1,0 +1,6 @@
+"true_nu_vtx_x" -1000 1000 150 "True nu vtx x [cm]" "Counts" "True neutrino vertex in X" "trueNuVtxX_SURPRISE_BNB_dirt.pdf" "basicHist"
+"true_nu_vtx_y" -1000 1000 150 "True nu vtx y [cm]" "Counts" "True neutrino vertex in Y" "trueNuVtxY_SURPRISE_BNB_dirt.pdf" "basicHist"
+"true_nu_vtx_z" -500 1500 150 "True nu vtx z [cm]" "Counts" "True neutrino vertex in Z" "trueNuVtxZ_SURPRISE_BNB_dirt.pdf" "basicHist"
+"mc_interaction_time" 0 5000 200 "mc interaction time [ns]" "Counts" "MC interaction time" "mcInt.pdf" "basicHist"
+"interaction_time_abs" 0 5000 200 "interaction time [ns]" "Counts" "Reconstructed nteraction time" "intTimeAbs.pdf" "basicHist"
+"mc_interaction_time true_nu_vtx_z" 0 18.831 10 "Compesated merged time [ns]" "Counts" "Compensated merged time for BNB dirt samples" "comp_merged_bnb_surprise_dirt.pdf" "compMerged"

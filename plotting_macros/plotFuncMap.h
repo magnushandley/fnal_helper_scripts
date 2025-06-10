@@ -7,6 +7,9 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <vector>
+#include <iostream>
+#include <sstream>
 #include "TTree.h"
 #include "TH1D.h"
 
@@ -14,11 +17,15 @@ using FuncSig = std::function<TH1D*(TTree*, std::string, int, double, double)>;
 
 TH1D* basicHist(TTree* tree, std::string varName, int bins, double xLow, double xHigh);
 TH1D* sumEntryHist(TTree* tree, std::string varName, int bins, double xLow, double xHigh);
+TH1D* compensatedMergedHist(TTree* tree, std::string varName, int bins, double xLow, double xHigh);
+
+std::vector<std::string> splitBySpace(const std::string& str);
 
 inline const std::map<std::string, FuncSig>& getFunctionMap() {
     static const std::map<std::string, FuncSig> funcMap {
         { "basicHist",      basicHist  },
-        { "sumEntryHist", sumEntryHist }
+        { "sumEntryHist", sumEntryHist },
+        { "compMerged", compensatedMergedHist }
     };
     return funcMap;
 }

@@ -37,7 +37,24 @@ void plotHist(TH1D *hist, std::string xAxis, std::string yAxis, std::string titl
   canvas = nullptr;
 }
 
+std::vector<std::string> splitBySpace(const std::string& str) {
+  // Splits a string by spaces and returns a vector of words
+
+  std::vector<std::string> words;
+  size_t start = 0;
+  size_t end = str.find(' ');
+  while (end != std::string::npos) {
+      words.push_back(str.substr(start, end - start));
+      start = end + 1;
+      end = str.find(' ', start);
+  }
+  words.push_back(str.substr(start));
+  return words;
+}
+
 TH1D* basicHist(TTree* tree, std::string varName, int bins, double xLow, double xHigh) {
+  // Creates a basic histogram from a variable in the TTree
+
   TH1D* hist = new TH1D(varName.c_str(), "", bins, xLow, xHigh);
   tree->Project(hist->GetName(), varName.c_str());
   return hist;
@@ -58,6 +75,50 @@ TH1D* sumEntryHist(TTree* tree, std::string varName, int bins, double xLow, doub
     tree->GetEntry(i);          // loads “*vec” for this entry
     if (vec) {
       hist->Fill(static_cast<double>(vec->size()));
+    }
+  }
+
+  return hist;
+}
+
+TH1D* compensatedMergedHist(TTree* tree, std::string varName, int bins, double xLow, double xHigh) {
+  // Aimed to perform dirt validations - plots the time of the true nu vertex, compensated by nu ToF, and then
+  // merged according to the BNB bunch spacing (18.831 ns)
+  // Syntax is a bit different to the other functions, as it requires a few more parameters - varName will be a string
+  // containing two variables, separated by a space, e.g. "time zVertex"
+
+  std::cout << "debug1" << std::endl;
+  std::string timeVarName, zCoordVarName;
+  std::vector<std::string> vars = splitBySpace(varName);
+  timeVarName = vars[0];
+  zCoordVarName = vars[1];
+  std::cout << "debug2" << std::endl;
+
+  Float_t bunchSpacing = 18.831; // ns
+  //Float_t bunchOffset = 0.0; // ns, offset to align with the first bunch
+
+  Float_t time = 0.0f;
+  Float_t zCoord = 0.0f;
+
+  tree->SetBranchAddress(timeVarName.c_str(), &time);
+  tree->SetBranchAddress(zCoordVarName.c_str(), &zCoord);
+  
+  TH1D* hist = new TH1D("compensated_merged_time", "", bins, xLow, xHigh);
+  Long64_t nEntries = tree->GetEntries();
+
+  for (Long64_t i = 0; i < nEntries; ++i) {
+    tree->GetEntry(i);
+    if (time && zCoord) {
+      // Compensate the time by the ToF, then merge according to the BNB bunch spacing
+      
+      Float_t mergedTime = time - (zCoord / 29.9792458); // Convert zCoord to time in ns
+      
+      //Time check to remove default value of -999
+      if (time > -900) {
+        mergedTime = time - (int)(time / bunchSpacing) * bunchSpacing;
+      }
+      
+      hist->Fill(mergedTime);
     }
   }
 
